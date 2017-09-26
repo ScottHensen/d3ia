@@ -1,0 +1,57 @@
+<html>
+<head>
+  <title>D3 in Action Ch 4</title>
+  <meta charset="utf-8" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.10.2/d3.min.js"></script>
+</head>
+<body>
+  <div>
+    <svg>
+
+    </svg>
+  </div>
+</body>
+<footer>
+  <script>
+
+  d3.select("svg").attr("style","height: 600px; width: 600px;");
+  d3.csv("boxplots.csv", scatterplot)
+
+  const tickSize = 470
+
+  function scatterplot(data) {
+    const xScale = d3.scaleLinear().domain([1,8]).range([20,tickSize])
+    const yScale = d3.scaleLinear().domain([0,100]).range([tickSize + 10,20])
+    const yAxis  = d3.axisRight()
+                     .scale(yScale)
+                     .ticks(8).tickSize(tickSize)
+    const xAxis  = d3.axisBottom()
+                     .scale(xScale)
+                     .tickSize(-tickSize).tickValues([1,2,3,4,5,6,7])
+
+    d3.select("svg")
+      .append("g")
+        .attr("transform", `translate(${tickSize},0)`)
+        .attr("id", "yAxisG")
+      .call(yAxis)
+
+    d3.select("svg")
+      .append("g")
+        .attr("transform", `translate(0,${tickSize + 10})`)
+        .attr("id", "xAxisG")
+      .call(xAxis)
+
+    d3.select("svg").selectAll("circle.median")
+      .data(data)
+      .enter()
+      .append("circle")
+        .attr("class", "tweets")
+        .attr("r", 5)
+        .attr("cx", d => xScale(d.day))
+        .attr("cy", d => yScale(d.median))
+      .style("fill", "darkgray")
+  }
+
+  </script>
+</footer>
+</html>

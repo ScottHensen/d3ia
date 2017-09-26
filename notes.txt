@@ -541,3 +541,88 @@ Pre-Generated SVG  (d3ia-c3-6.html)
      d3.selectAll("g.overallG").each(function(d) {
         d3.select(this).selectAll("path").datum(d);
      });
+
+
+Ch.4
+========================
+D3 functions
+  Generators
+    in  = data
+    out = svg drawing code for the "d" attribute of <data> elements
+    examples = area(), line(), arc(), diagonal()
+  Components
+    in  = functions
+    out = elements and event listeners
+    examples = axis(), brush(), zoom()
+  Layouts
+    in  = whole datasets
+    out = new annotated datasets with attributes for graphical layout of datapoints
+    examples = stack(), pie(), chord()
+
+Building Axes (d3ia-c4-1-scatterplot.html)
+    var yAxis = d3.axisRight().scale(yScale);
+    d3.select("svg").append("g").attr("id", "yAxisG").call(yAxis)
+    var xAxis = d3.axisBottom().scale(xScale)
+    d3.select("svg").append("g").attr("id", "xAxisG").call(xAxis)
+
+Styling Axes (d3ia-c4-2-style-axis.html)
+
+Complex graphical objects (d3ia-c4-3-scatterplot.html = meh,
+                           d3ia-c4-4-boxplot.html     = woah)
+  Use a boxplot instead of a simple scatterplot.
+    - instead of appending circles, append <g> elements
+      (you should be doing this anyway, so you can label your datapoints)
+    - range densest q1-q3 via d3.scaleQuartile()
+
+Line charts (d3ia-c4-5-line-chart.html)
+    d3.line() draws line between two sets of x,y coordinates
+      .defined() returns false when data is missing; allowing you to leave gaps in the line drawn
+          example:  to leave a gap when d.y is null, d3.line().defined(d => d.y === null)
+
+Line chart interpolation (d3ia-c4-6-line-chart-interpolation.html)
+    use d3.curve() instead of .line()
+      .curveBasis() = organic curve averaged by the points (rarely touches them)
+      .curveStep() = square curve
+      .curveCardinal() = curve that touches each point
+
+Complex Accessor Functions (d3ia-c4-7-steamgraph.html)
+    Area accessors
+      .area()
+        - use area when you want to draw a shape where the bottom of the
+          shape can be calculated based on the top of the shape...
+            - stacked area charts and steamgraphs
+
+      .line()
+        - you close an area by appending a "Z" attribute.
+        - you can fill either an open or closed area
+        - examples...
+          Constructor is same regardless of open/closed:
+              movieArea = d3.svg.line()
+                            .x(function(d) {
+                               return xScale(d.day)
+                            })
+                            .y(function(d) {
+                               return yScale(d[x])
+                            })
+                            .interpolate("cardinal");
+          Open
+              d3.select("svg")
+                  .append("path")
+                  .attr("d", movieArea(data))
+                  .attr("fill", "none")
+                  .attr("stroke", "black")
+                  .attr("stroke-width", 3);
+          Closed
+              d3.select("svg")
+                .append("path")
+                .attr("d", movieArea(data)
+            + "Z")
+                .attr("fill", "grey")
+                .attr("stroke", "black")
+                .attr("stroke-width", 3);
+Legends
+  d3-legend.susielu.com
+    npm i d3-svg-legend
+    https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.21.0/d3-legend.min.js
+    provides 3 kinds of legends: size, color, symbol
+    
