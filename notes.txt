@@ -1,0 +1,543 @@
+D3.js in Action
+
+Ch.1
+========================
+d3.selectAll("circle.a").style("fill", "red").attr("cx", 100);
+d3.selectAll("div").style("background", "red").attr("class", "b");
+d3.selectAll("div.market").data([1,5,11,3])
+d3.select("#someDiv").style("border", "5px darkgray dashed");
+d3.select("#someDiv").attr("id", "newID");
+d3.select("#someCheckbox").property("checked", true);
+d3.select("div").style("background","lightblue").style("border", "solid black 1px").html("You have now dynamically changed the content of a web page element");
+d3.select("circle").remove()
+d3.select("rect").style("fill", "purple")
+d3.select("svg").style("background", "darkgray");
+d3.select("circle").classed("active", true);  // append class active
+d3.selectAll("div").data(someData).enter().append("div").html("Wow").append("span").html("Even More Wow").style("font-weight", "900");
+d3.select("#a").transition().delay(1000).style("opacity", 1);
+d3.selectAll("circle").transition().duration(2000).attr("cy", 200);
+
+svg = scalable vector graphics
+canvas = bitmap graphics
+
+svg elements:
+- circle:  attributes cx, cy, r
+- rect:    attributes x, y, height, width
+- line:    attributes x1, y1, x2, y2
+- ellipse
+- polygon
+- text / tspan
+- g (group) attribute transform
+    transform=translate(x,y) ... move it to x,y
+    transform=scale() ... adjust the scale of the shape
+- path:     attributes d, z(closes the shape)
+
+  you can add an svg element in your html with <svg style="" />,
+   or, you can add it with a d3 selector d3.select("body").append("svg");
+
+method chaining:
+d3.selectAll("div").data(someData).enter().append("div").html("Wow").append("span").html("Even More Wow").style("font-weight", "900");
+  .data() binds data to elements
+  .enter() tells d3 what to do with each element that does not get bound with .bind()
+  .exit() tells d3 what to do when there are fewer data elements than selection elements
+
+.filter() - an array function to filter data that meets specific criteria
+  someNumbers.filter(function(d) {return d >= 40});
+  someColors.filter(function(d) {return d.length < 5});
+
+  smallerNumbers = someNumbers.filter(
+    function(el) {return d<= 40});
+  d3.select("body").selectAll("div")
+    .data(smallerNumbers)
+    .enter()
+    .append("div")
+    .html(function (d) {return d});
+
+ .transition() - changes the state of properties
+ .delay() - specifies time in millis
+ .transition().delay(1000).style("opacity",1); == fade in over 1 second
+
+es6 arrow function.
+  d => d     is the same as    function(d) {return d}
+
+  someArray.forEach(d => { console.log(d) } );
+     is the same as
+  someArray.forEach(function (d) { console.log(d) } );
+
+tabular data.
+  d3.csv() = comma-delimited
+  d3.tsv() = tab-delimited
+  d3.dsv() = 'delimiter'-delimited
+
+json data.
+  d3.json()
+     for (x in person) {console.log(x); console.log(person[x]);}
+        spins through all elements (x) in a person object
+
+Basic stuff..
+  d3.select("svg")
+  .append("line")
+  .attr("x1", 20)
+  .attr("y1", 20)
+  .attr("x2",400)
+  .attr("y2",400)
+  .style("stroke", "black")
+  .style("stroke-width","2px");
+  d3.select("svg")
+  .append("text")
+  .attr("x",20)
+  .attr("y",20)
+  .text("HELLO");
+  d3.select("svg")
+  .append("circle")
+  .attr("r", 20)
+  .attr("cx",20)
+  .attr("cy",20)
+  .style("fill","red");
+  d3.select("svg")
+  .append("circle")
+  .attr("r", 100)
+  .attr("cx",400)
+  .attr("cy",400)
+  .style("fill","lightblue");
+  d3.select("svg")
+  .append("text")
+  .attr("x",400)
+  .attr("y",400)
+  .text("WORLD");
+
+
+Ch.2
+========================
+load -> format -> measure -> create -> update
+
+5 file types:  d3.text(), d3.xml(), d3.json(), d3.csv(), d3.html()
+
+load
+------
+you can load it once, or dynamically with xhr
+
+provide path to file and callback function (error is optional in callback)
+  d3.csv("cities.csv",(error,data) => {console.log(error,data)});
+    -or-
+  d3.csv("cities.csv",d =>console.log(d));
+
+both .csv() and .json() will load as an array of json objects
+
+the loads above are asynchronous.  to force single threading, nest a function
+inside the callback function, like this...
+  d3.csv("somefiles.csv", function(data) {doSomethingWithData(data)});
+
+format
+-------
+data types:  another way to think about them...
+  - quantitive
+    . represented by size, position, color
+  - categorical
+    . represented by shape or color
+  - topolgocial
+    . relationship between data (eg. genealogical connection between 2 people or
+      distance of a shop from train station)
+    . represented with text or pointers
+  - geometric
+    . geographic data mostly
+    . represented by shape and size
+  - temporal
+  - raw
+
+data munging:
+ - casting
+    parseInt("77"); +"77";
+    parseFloat("3.14"); +"3.14"
+    Date.parse("Sun, 22 Dec 2013 08:00:00 GMT");
+    text = "alpha,beta,gamma"; text.split(",");
+
+ - normalizing (scaling)
+    d3.scale().linear() scales one range of numbers to another
+      example:
+        data is in range 500k-13m; convert it to 0-500 scale...
+          var newRamp = d3.scaleLinear().domain([500000,13000000]).range([0, 500]);
+          newRamp(1000000);
+          newRamp(9000000);
+          newRamp.invert(313);
+        same data on a blue-red scale...
+          var newRamp = d3.scaleLinear().domain([500000,13000000]).range(["blue", "red"]);
+          newRamp(1000000);
+          newRamp(9000000);
+          newRamp.invert("#ad0052");
+    d3.scaleLog(), d3.scalePow(), d3.scaleOrdinal(), d3.scaleTime(), etc.  are other choices.
+
+ - binning (grouping)
+    d3.scaleQuantile()
+        .range() -- number of parts and their labels
+        .domain() -- the stuff being sorted into quantiles
+      example:
+        var sampleArray = [423,124,66,424,58,10,900,44,1];
+        var qScale = d3.scaleQuantile().domain(sampleArray).range([0,1,2]);
+        qScale(423);
+        qScale(20);
+        qScale(10000);
+
+ - nesting (hierarchical trees)
+    d3.nest()
+      example:
+        d3.json("tweets.json",data => {
+        var tweetData = data.tweets;
+        var nestedTweets = d3.nest()
+            .key(d =>d.user)
+            .entries(tweetData);
+        });
+
+measure
+--------
+  d3.min()
+  d3.max()
+  d3.mean()
+  d3.extent() --> [d3.min(),d3.max()]
+
+  example w/ simple numeric array:
+    var testArray =  [88,10000,1,75,12,35];
+    d3.min(testArray, el => el);
+    d3.max(testArray, el => el);
+    d3.mean(testArray, el => el);
+
+  example w/ json objects built from a csv file:
+    d3.csv("cities.csv", data => {
+      d3.min(data, el => +el.population);
+      d3.max(data, el => +el.population);
+      d3.mean(data,el => +el.population);
+    });
+
+create
+-------
+  Binding
+    - .data(in) binds selected DOM elements to each 'in' row in the input file
+    - when you bind el's to data, you are doing a merge.
+      - d3 does a diff, just like react.
+      - if there are more data rows than els, the .enter() will fire for each
+        extra row.
+      - if there are more selected els, the .exit() will fire for each extra el.
+      - you tell d3 what to do with the extras by supplying enter() and exit()
+        functionality.
+
+  Channels
+    - channels are the various ways to represent data, such as
+      height, width, area, color, position, shape, hue, saturation, transparency
+    - pick the best one for your data; one size does not fit all
+    - don't use too many channels though; you'll confuse the audience
+
+update
+-------
+  - Removing dom elements with the exit() function
+    (when you have more data points than selected dom elements, exit() fires)
+      d3.selectAll("g").data([1,2,3,4]).exit().remove();
+  - Merging two selections so you can act on both at the same time...
+      d3.merge()
+  - Updating bound text...  select all the parent, then subselect the children.
+      d3.selectAll("g").select("text").text(d => d);
+      d3.selectAll("g").each(d =>console.log(d));
+      d3.selectAll("text").each(d =>console.log(d));
+      d3.selectAll("circle").each(d =>console.log(d));
+  - Binding data
+    By default,t .data() binds based on the array position of the data value.
+    You can also use key/values when binding to JSON objects.  See example.
+
+  Example (d3ia-c2-1-cities.html):
+    d3.select("body")
+      .selectAll("div.cities")  // an empty selection, which will force enter() to fire 1x for each row in the .csv
+      .data(inData)             // bind the selected DOM elements (body.div.cities) to inData
+      .enter()                  // when there's more data than selected DOM elements, enter() is invoked
+      .append("div")            // each time enter() is fired, append a div
+      .attr("class","cities")         // set the div's class to 'cities'
+      .html( function(d,i) {return d.label} )  // and put inData.label in the div's html text
+
+  Example (d3ia-c2-2-histogram.html):
+    d3.select("svg")
+      .selectAll("rect")              // empty select
+      .data([15, 50, 22, 8, 100, 10]) // bind this data
+      .enter()                        // for each...
+      .append("rect")                    // add a rect
+      .attr("width", 10).attr("height", d => d)  // with width=10, height=data.value
+      .style("fill", "#6E9922")                  // color it
+      .style("stroke", "#9A8B7A")
+      .style("stroke-width", "1px")
+      .attr("x", (d,i) => i * 10)                // position each rect x=10*index
+      .attr("y", d => 100 - d);                  // position each rect y=100-data.value
+
+  Example (d3ia-c2-3-scaled-histogram.html)
+    var yScale = d3.scaleLinear().domain([0,24500]).range([0,100]);
+    yScale(0);
+    yScale(100);
+    yScale(24000);
+    d3.select("svg")
+      .selectAll("rect")              // empty select
+      .data([14, 68, 24500, 430, 19, 1000, 5555]) // bind this data  (won't fit in div; need to scale it)
+      .enter()                        // for each...
+      .append("rect")                    // add a rect
+      .attr("width", 10)                    // with width=10
+      .attr("height", d => yScale(d))       // height=data.value at scale
+      .attr("x", (d,i) => i * 10)           // position each rect x=10*index
+      .attr("y", d => 100 - yScale(d))      // position each rect y=100-data.value
+      .style("fill", "#6E9922")                  // color it
+      .style("stroke", "#9A8B7A")
+      .style("stroke-width", "1px");
+
+  Nuances in linear scale...
+    Polylinear scale - multiple points in the domain and range
+      var yScale = d3.scaleLinear().domain([0,100,1000,24500]).range([0,50,75,100]);
+    Capped polylinear scale - multiple points, but use clamp() to cap the height at provided max (no overflow)
+      var yScale = d3.scaleLinear()
+                     .domain([0,100,500])
+                     .range([0,50,100])
+                     .clamp(true);
+
+  Example (d3ia-c2-4-all-together-now-cities.html)
+    d3.csv("cities.csv",(error, data) => {dataViz(data)});
+    function dataViz(incomingData) {
+     var maxPopulation = d3.max(incomingData, d => parseInt(d.population))
+     var yScale = d3.scaleLinear().domain([0,maxPopulation]).range([0,460]);
+     d3.select("svg").attr("style","height: 480px; width: 600px;");
+     d3.select("svg")
+       .selectAll("rect")
+       .data(incomingData)
+       .enter()
+       .append("rect")
+       .attr("width", 50)
+       .attr("height", d => yScale(parseInt(d.population)))
+       .attr("x", (d,i) => i * 60)
+       .attr("y", d =>480 - yScale(parseInt(d.population)))
+       .style("fill", "#6  E9922")
+       .style("stroke", "#9A8B7A")
+       .style("stroke-width", "1px")
+    }
+
+    Example (d3ia-c2-5-nesting-counting-tweets.html)
+      d3.json("tweets.json",(error, data) =>{dataViz(data.tweets)});
+      function dataViz(incomingData) {
+        var nestedTweets = d3.nest()
+                              .key(d => d.user)
+                              .entries(incomingData);
+        nestedTweets.forEach(d => {
+          d.numTweets = d.values.length;
+        })
+        var maxTweets = d3.max(nestedTweets, d =>d.numTweets);
+        var yScale = d3.scaleLinear().domain([0,maxTweets]).range([0,500]);
+        d3.select("svg")
+          .selectAll("rect")
+          .data(nestedTweets)
+          .enter()
+          .append("rect")
+          .attr("width", 50)
+          .attr("height", d => yScale(d.numTweets))
+          .attr("x", (d,i) => i * 60)
+          .attr("y", d => 500 - yScale(d.numTweets))
+          .style("fill", "#FE9922")
+          .style("stroke", "#9A8B7A")
+          .style("stroke-width", "1px");
+      }
+
+    Example (d3ia-c2-6-scatterplot-of-impactful-tweets.html)
+      d3.json("tweets.json",(error, data) =>{dataViz(data.tweets)});
+      function dataViz(incomingData) {
+        incomingData.forEach(d => {
+          d.impact = d.favorites.length + d.retweets.length;
+          d.tweetTime = new Date(d.timestamp);
+        })
+        var maxImpact = d3.max(incomingData, d =>d.impact);
+        var startEnd = d3.extent(incomingData, d => d.tweetTime);
+        var timeRamp = d3.scaleTime().domain(startEnd).range([20,480]);
+        var yScale = d3.scaleLinear().domain([0,maxImpact]).range([0,460]);
+        var radiusScale = d3.scaleLinear()
+                            .domain([0,maxImpact]).range([1,20]);
+        var colorScale = d3.scaleLinear()
+                           .domain([0,maxImpact]).range(["white","#75739F"]);
+        d3.select("svg")
+          .selectAll("circle")
+          .data(incomingData)
+          .enter()
+          .append("circle")
+          .attr("r", d =>radiusScale(d.impact))
+          .attr("cx", d =>timeRamp(d.tweetTime))
+          .attr("cy", d =>480 - yScale(d.impact))
+          .style("fill", d =>colorScale(d.impact))
+          .style("stroke", "black")
+          .style("stroke-width", "1px");
+      };
+
+    Example (d3ia-c2-7-scatterplot-of-impactful-tweets-w-labels.html)
+      d3.json("tweets.json",(error, data) =>{dataViz(data.tweets)});
+      function dataViz(incomingData) {
+        incomingData.forEach(d => {
+          d.impact = d.favorites.length + d.retweets.length;
+          d.tweetTime = new Date(d.timestamp);
+        })
+        var maxImpact = d3.max(incomingData, d =>d.impact);
+        var startEnd = d3.extent(incomingData, d => d.tweetTime);
+        var timeRamp = d3.scaleTime().domain(startEnd).range([20,480]);
+        var yScale = d3.scaleLinear().domain([0,maxImpact]).range([0,460]);
+        var radiusScale = d3.scaleLinear()
+                            .domain([0,maxImpact]).range([1,20]);
+        var colorScale = d3.scaleLinear()
+                           .domain([0,maxImpact]).range(["white","#75739F"]);
+        d3.select("svg").attr("style","height: 480px; width: 600px;");
+        var tweetG = d3.select("svg")
+          .selectAll("g")
+          .data(incomingData)       // bind incomingData to <g> elements
+          .enter()                  // append the <g>s to <svg>
+          .append("g")              // add a transform = translate (x,y) position
+          .attr("transform", d =>
+            "translate(" + timeRamp(d.tweetTime) + "," + (480 - yScale(d.impact)) + ")"
+          );
+        tweetG.append("circle")    // append a circle to the positioned <g>s
+          .attr("r", d =>radiusScale(d.impact))
+          .style("fill", "#75739F")
+          .style("stroke", "black")
+          .style("stroke-width", "1px");
+        tweetG.append("text")      // append labels to the positioned <g>s
+          .text(d =>d.user + "-" + d.tweetTime.getHours());  };
+
+    Example (d3ai-c2-8-binding-json-key-value.html)
+      d3.json("tweets.json",(error, data) =>{dataViz(data.tweets)});
+      function dataViz(incomingData) {
+        incomingData.forEach(d => {
+          d.impact = d.favorites.length + d.retweets.length;
+          d.tweetTime = new Date(d.timestamp);
+        })
+        var maxImpact = d3.max(incomingData, d => d.impact)
+        var startEnd = d3.extent(incomingData, d =>d.tweetTime)
+        var timeRamp = d3.scaleTime().domain(startEnd).range([ 50, 450 ]);
+        var yScale = d3.scaleLinear().domain([ 0, maxImpact ]).range([ 0, 460 ]);
+        var radiusScale = d3.scaleLinear()
+             .domain([ 0, maxImpact ])
+             .range([ 1, 20 ]);
+        d3.select("svg").selectAll("circle")
+          .data(incomingData, JSON.stringify)
+          .enter().append("circle")
+          .attr("r", d => radiusScale(d.impact))
+          .attr("cx", d =>timeRamp(d.tweetTime))
+          .attr("cy", d =>480 - yScale(d.impact))
+          .style("fill", "#75739F ")
+          .style("stroke", "black")
+          .style("stroke-width", "1px");
+      }
+
+Ch.3
+========================
+organize your projects.  something like...
+  /
+    /css
+    /data
+    /img
+    /js
+      /lib
+    /resources
+    index.html
+
+Soccer Viz (d3ia-c3-1.html)
+  - dynamically build buttons that are bound do data types to filter data viz
+  - add event handling (click/hover) to see data classifications
+  - use transition() with .duration() and .delay() to animate filter changes,
+    which improves user retention of data viz.
+
+DOM manipulation
+  - selecting for .this...
+    d3.select("circle").each((d,i)=> {
+      console.log(d);console.log(i);console.log(this);
+    }) returns...
+       d = JSON for circle
+       i = 0, since circle is the first in the array
+       this = a TON of info:
+          window:  just about everything the browser knows, plus
+          pt:  an array and tons of DOM for the circle element
+  - selecting for node...
+    d3.select("circle").node();
+      returns...
+      <circle r="20"></circle>
+
+  - re-appending for a z-index workaround
+    - SVG does not have a z-index function, so if you want to be sure <foo>
+      gets written on the top of <bar>, you can do this...
+        d3.select("foo").node(), then append it
+          or do this in pure js...
+        this.parentElement.appendChild(this);
+
+  - moving elements forward/backward | up/down in a DOM tree...
+    d3.select("g.overallG").raise()
+    d3.select("g.overallG").lower()
+
+  - to turn off mouse/pointer events...
+    teamG.select("text").style("pointer-events","none");
+
+    (Since the big text on hover was part of the hovered circle, you could
+     mouse all the way over to another circle without the event firing.  to fix
+     that, we removed pointer events from the text element)
+
+Color
+  d3.rgb()
+    teamColor = d3.rgb("red");
+    teamColor = d3.rgb("#ff0000");
+    teamColor = d3.rgb("rgb(255,0,0)");
+    teamColor = d3.rgb(255,0,0);
+  d3.darker()
+    teamColor.darker(.5)
+  d3.brighter()
+    teamColor.brighter(.25)
+  d3.hsl()  = hue, saturation, lightness
+  d3.hcl()  = hue, chroma, lightness
+  d3.hcg()
+  d3.lab()  = lightness, A-B
+  d3.cubehelix()
+
+  - use hsl instead of rgb when you are mixing colors or building color ramps,
+    because hsl will not muddy mixed colors like rgb.
+  - note:  we should AVOID color ramps though, because they are not clear
+
+  Discrete Color categories  (d3ia-c3-3.html)
+  - d3 comes with 4 predefined palettes that can be mapped to the ordinal scale
+    - d3.schemeCategory10
+    - d3.schemeCategory20
+    - d3.schemeCategory20b
+    - d3.schemeCategory20c
+  var tenColorScale = d3.scaleOrdinal().domain([1..n]).range(d3.schemeCategory10)
+
+
+  Color Brewer by Cynthia Brewer (d3ia-c3-4.html)
+  - Cynthia built a set of clear cartographic color scales.
+
+Pre-generated Content  (d3ia-c3-5.html)
+  Add <image> elements and xlink:href attributes like so...
+    d3.selectAll("g.overallG").insert("image", "text")
+      .attr("xlink:href", d => `images/${d.team}.png`)
+      .attr("width", "45px").attr("height", "20px")
+      .attr("x", -22).attr("y", -10)
+
+  Note: used insert instead of append so that image lays down before text
+  Note: AVOID CHARTJUNK.  just cuz you can add pics, doesn't mean you should.
+
+HTML Fragments  (d3ia-c3-5.html)
+  You can add/manipulate html chunks with d3 too!  See stats box modal.
+  You can insert the html with either d3.text() or d3.html().
+    - d3.text() is simpler, but
+    - d3.html() lets you do cooler stuff.  it will load everything in as DOM
+      nodes, so you can do standard d3/js dom manipulation on the stuff you've
+      loaded.
+
+Pre-Generated SVG  (d3ia-c3-6.html)
+  Good for icons and such.  See http://thenounproject.com for an extensive repo.
+    d3.html("resources/icon_1907.svg", loadSVG);
+    function loadSVG(svgData) {
+      while(!d3.select(svgData).selectAll("path").empty()) {
+        d3.select("svg").node().appendChild(
+        d3.select(svgData).select("path").node());
+      }
+      d3.selectAll("path").attr("transform", "translate(50,50)");
+    }
+
+  NOTE:  if you load the SVG to a data-bound element, you will have to rebind
+  the data.  To do that...
+     select all <g>s, then for each, select all children path elements.
+     then, bind the data from the <g> to each <path> using .datum().
+
+     d3.selectAll("g.overallG").each(function(d) {
+        d3.select(this).selectAll("path").datum(d);
+     });

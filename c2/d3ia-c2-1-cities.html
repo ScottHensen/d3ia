@@ -1,0 +1,37 @@
+<html>
+<head>
+  <title>D3 in Action Ch 2 - 1</title>
+  <meta charset="utf-8" />
+  <script src="d3.min.js"></script>
+</head>
+<body>
+<div>
+</div>
+</body>
+<footer>
+  <script>
+    function dataViz(inData) {
+      console.log(inData);
+      d3.select("body")
+        .selectAll("div.cities")  // an empty selection, which will force enter() to fire 1x for each row in the .csv
+        .data(inData)             // bind the selected DOM elements (body.div.cities) to inData
+        .enter()                  // when there's more data than selected DOM elements, enter() is invoked
+        .append("div")            // each time enter() is fired, append a div
+        .attr("class","cities")         // set the div's class to 'cities'
+        .html( function(d,i) {return d.label} )  // and put inData.label in the div's html text
+    }
+
+    d3.csv("cities.csv", function(error,data) {
+      if (error) {
+        console.error(error)
+      }
+      else {
+        dataViz(data)
+      }
+    });
+
+
+
+  </script>
+</footer>
+</html>

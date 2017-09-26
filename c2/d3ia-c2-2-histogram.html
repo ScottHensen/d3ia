@@ -1,0 +1,23 @@
+<html>
+<head>
+<script src="d3.min.js"></script>
+</head>
+<body>
+<div id="vizcontainer">
+<svg style="width:500px;height:500px;border:1px lightgray solid;" />
+<script>
+  d3.select("svg")
+    .selectAll("rect")              // empty select
+    .data([15, 50, 22, 8, 100, 10]) // bind this data
+    .enter()                        // for each...
+    .append("rect")                    // add a rect
+    .attr("width", 10).attr("height", d => d)  // with width=10, height=data.value
+    .style("fill", "#6E9922")                  // color it
+    .style("stroke", "#9A8B7A")
+    .style("stroke-width", "1px")
+    .attr("x", (d,i) => i * 10)                // position each rect x=10*index  
+    .attr("y", d => 100 - d);                  // position each rect y=100-data.value
+</script>
+</div>
+</body>
+</html>

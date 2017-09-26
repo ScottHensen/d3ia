@@ -1,0 +1,29 @@
+<html>
+<head>
+<script src="d3.min.js"></script>
+</head>
+<body>
+<div id="vizcontainer">
+<svg style="width:500px;height:500px;border:1px lightgray solid;" />
+<script>
+  var yScale = d3.scaleLinear().domain([0,24500]).range([0,100]);
+  yScale(0);
+  yScale(100);
+  yScale(24000);
+
+  d3.select("svg")
+    .selectAll("rect")              // empty select
+    .data([14, 68, 24500, 430, 19, 1000, 5555]) // bind this data  (won't fit in div; need to scale it)
+    .enter()                        // for each...
+    .append("rect")                    // add a rect
+    .attr("width", 10)                    // with width=10
+    .attr("height", d => yScale(d))       // height=data.value at scale
+    .attr("x", (d,i) => i * 10)           // position each rect x=10*index
+    .attr("y", d => 100 - yScale(d))      // position each rect y=100-data.value
+    .style("fill", "#6E9922")                  // color it
+    .style("stroke", "#9A8B7A")
+    .style("stroke-width", "1px");
+</script>
+</div>
+</body>
+</html>
