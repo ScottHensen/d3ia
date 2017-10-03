@@ -625,4 +625,12 @@ Legends
     npm i d3-svg-legend
     https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.21.0/d3-legend.min.js
     provides 3 kinds of legends: size, color, symbol
-    
+
+
+Ch. 5 - Layouts
+================
+  Layouts are preprocessing functions that munge your data into a format that
+   is appropriate for the type of viz you'd like to build.
+
+Histograms
+  d3.histograms() bins values and provides settings to draw a bar chart
