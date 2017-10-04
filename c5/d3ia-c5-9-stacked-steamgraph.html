@@ -1,0 +1,82 @@
+<html>
+<head>
+  <title>D3 in Action Ch 5</title>
+  <meta charset="utf-8" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.10.2/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.21.0/d3-legend.min.js"></script>
+  <style>
+    path.domain {
+      stroke: none;
+    }
+    .tick > line {
+      stroke: #EBD8C1;
+    }
+    .tick > text {
+      fill: #EBD8C1;
+    }
+  </style>
+
+</head>
+<body>
+  <div>
+    <svg>
+
+    </svg>
+  </div>
+</body>
+<footer>
+  <script>
+    d3.select("svg").attr("style","height: 600px; width: 600px;")
+
+    d3.csv("movies.csv", dataViz);
+
+    function dataViz(data) {
+      // scale the domain values to the svg size
+      var xScale = d3.scaleLinear().domain([0, 10]).range([0, 500]);
+      var yScale = d3.scaleLinear().domain([0, 100]).range([500, 0]);
+      // define the domain; the list of movies to illustrate
+      var movies = ["titanic", "avatar", "akira", "frozen", "deliverance", "avengers"]
+      // give each movie in the domain a unique color
+      var fillScale =
+            d3.scaleOrdinal()
+              .domain(movies)
+              .range(["#fcd88a", "#cf7c1c", "#93c464", "#75734F", "#5eafc6", "#41a368"])
+      console.log(fillScale)
+
+      // pass the array of movies titles into the stack layout to serve as keys to the data
+      // at this point the data is arranged in such a way that it can be
+      // processed.  X will be the days; Y will be the value for each day.
+      // Each movie will be stacked vertically, so that we can determine area
+      // between two movies and color them accordingly.
+      stackLayout =
+            d3.stack()
+              .offset(d3.stackOffsetSilhouette)
+              .order(d3.stackOrderInsideOut)
+              .keys(movies)
+
+      yScale.domain([-50, 50])
+
+      // the stack layout returns an array consisting of an upper-bound and a
+      // lower-bound [y0, y1].  stackArea will hold the coordinates so we can map that area.
+      var stackArea =
+            d3.area()                 // define the area for each movie
+              .x((d, i) => xScale(i)) // use the index for the x position
+              .y0(d => yScale(d[0]))  // the first  array row = upper-bound
+              .y1(d => yScale(d[1]))  // the second array row = lower-bound
+      stackArea.curve(d3.curveBasis)
+
+      console.log(stackArea)
+      //
+      d3.select("svg").selectAll("path")
+        .data(stackLayout(data))     // transform the data arg into the defined stackLayout
+        .enter()
+        .append("path")              // for each key (movie)
+          .style("fill", d => fillScale(d.key))  // pick the movie's color
+          .attr("d", d => stackArea(d));         // build the svg path's d attribute
+                                                 // to plot the area
+
+    }
+
+  </script>
+</footer>
+</html>

@@ -1,5 +1,11 @@
 D3.js in Action
 
+My personal notes; taken while reading the book.  Some of this is a paraphrase,
+some of it is a word for word cut/paste.  Some I might have gotten wrong.
+Bottom line... these are *my* notes.  If anyone stumbles upon this because it's
+in a public repo, please pick up a copy of Elijah's book; it's really good.
+
+
 Ch.1
 ========================
 d3.selectAll("circle.a").style("fill", "red").attr("cx", 100);
@@ -629,8 +635,41 @@ Legends
 
 Ch. 5 - Layouts
 ================
-  Layouts are preprocessing functions that munge your data into a format that
+How to build something nice...
+  1. pre-process the data so that it matches the requirements of the layout
+  2. set the accessor functions of the layout to align it with the dataset
+  3. use the layout to format the data for display
+  4. send the modified data either directly to svg elements or pair the data
+     with a generator like d3.diagonal, d3.arc or d3.area
+
+Layouts are preprocessing functions that munge your data into a format that
    is appropriate for the type of viz you'd like to build.
 
 Histograms
   d3.histograms() bins values and provides settings to draw a bar chart
+    Example:
+      var histoChart = d3.histogram()
+                         .domain([0,5])
+                         .thresholds([0,1,2,3,4,5])
+                         .value(d =? d.favorites.length)
+      var histoData = histoChart(theDataYouWantToShow)
+      d3.select("svg").selectAll("rect")
+        .data(histoData).enter()
+        .append("rect")...
+
+  More than just bar charts.  you can do all kinds of charts with histogram;
+  d3ia-c5-3*.html shows an example of a violin plot.
+
+Pie Charts
+  d3.pie() bins the data for the chart
+  d3.arc() is the generator that builds the paths for the arcs of the chart
+      .innerRadius() and .outerRadius() are two methods of .arc()
+
+Stack
+  d3.stack()      - see d3ia-c5-8-stack-1.html
+      .keys()
+
+      .offset()   - see d3ia-c5-9-stack-2.html
+        .stackOffsetSilhouette()
+      .order()
+        .stackOrderInsideOut()
