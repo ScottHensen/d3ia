@@ -674,4 +674,15 @@ Stack
       .order()
         .stackOrderInsideOut()
 
-        
+D3 plugins
+  - see https://github.com/d3/d3-plugins
+  - or, search npm
+
+Sankey Diagrams
+  - for visualizing nodes and edges
+  - not part of d3 core library.
+  - Mike Bostock wrote a plugin; updated by Kshitij Aranke.
+    https://github.com/d3/d3-sankey
+      Read the API.  It has changed since d3ia was written.
+  - Here's a working example from Mike Bostock...
+    https://bl.ocks.org/mbostock/ca9a0bb7ba204d12974bca90acc507c0
