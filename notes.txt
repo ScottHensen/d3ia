@@ -5,6 +5,10 @@ some of it is a word for word cut/paste.  Some I might have gotten wrong.
 Bottom line... these are *my* notes.  If anyone stumbles upon this because it's
 in a public repo, please pick up a copy of Elijah's book; it's really good.
 
+Note:  you have to serve d3, so to play with the source...
+          1) cd */d3
+          2) python -m SimpleHTTPServer 8000  [or use node/wamp/firefox/whatevs]
+          c) localhost:8000/<subdir>/<filename>
 
 Ch.1
 ========================
