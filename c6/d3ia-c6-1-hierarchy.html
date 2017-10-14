@@ -1,0 +1,60 @@
+<html>
+<head>
+  <title>D3 in Action Ch 6</title>
+  <meta charset="utf-8" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.10.2/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.21.0/d3-legend.min.js"></script>
+  <style>
+    path.domain {
+      stroke: none;
+    }
+    .tick > line {
+      stroke: #EBD8C1;
+    }
+    .tick > text {
+      fill: #EBD8C1;
+    }
+  </style>
+
+</head>
+<body>
+  <div>
+    <p>look at der console</p>
+    <svg>
+
+    </svg>
+  </div>
+</body>
+<footer>
+  <script>
+
+  // d3.select("svg").attr("style","height: 600px; width: 600px;");
+
+  d3.json("tweets.json", function(error, data) { nester(data.tweets) })
+  function nester(tweetsData) {
+    console.log(tweetsData)
+    // guild a nested array of objects.  looks like this...
+    // 0: {"Al":  [{"first tweet": [{...all the tweet data}]},..., {"last tweet"}]}
+    // 1: {"Roy": [{"first tweet": [{...all the tweet data}]},..., {"last tweet"}]}
+    var nestedDataset =
+          d3.nest()
+            .key(d => d.user)
+            .key(d => d.content)
+            .entries(tweetsData)
+    console.log(nestedDataset)
+  }
+
+  // given: child-parent relationships in tabular form
+  d3.csv("family.csv", stratifier);
+  // result: hierarchy function w/ me as root
+  function stratifier(data) {
+    var stratifiedData =
+          d3.stratify()
+            .parentId(d => d.child)
+            .id(d => d.parent)
+    console.log(stratifiedData)
+  }
+
+  </script>
+</footer>
+</html>

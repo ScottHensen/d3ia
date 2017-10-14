@@ -686,3 +686,51 @@ Sankey Diagrams
       Read the API.  It has changed since d3ia was written.
   - Here's a working example from Mike Bostock...
     https://bl.ocks.org/mbostock/ca9a0bb7ba204d12974bca90acc507c0
+
+Ch. 6 - Hierachical Visualization
+==================================
+
+  d3.hierarchy() formats data into the layout d3 expects for building hierarchical viz's
+    - var root = d3.hierarchy(root, function (d) {return d.children})
+    - root = parent; leaf = child
+
+  d3.nest() can be used to build hierarchies of data
+    - Returns an ARRAY (d3 needs an object, so you gotta convert the nest results)
+    - Given:
+        { "tweets": [
+          {"user": "Al", "content": "I really love seafood.",
+           "timestamp": " Mon Dec 23 2013 21:30 GMT-0800 (PST)",
+           "retweets": ["Raj","Pris","Roy"], "favorites": ["Sam"]},
+           ...
+           {"user": "Roy", "content": "Great workout!",
+            "timestamp": " Mon Dec 23 2013 7:20 GMT-0800 (PST)",
+            "retweets": [],"favorites": []},
+        ]}
+    - Build a nested hierarchy like this:
+        var nestedDataset =
+              d3.nest()
+                .key(d => d.user)
+                .key(d => d.content)
+                .entries(dataset)
+    - Result:
+      [
+       {"Al": [
+          {"I really love seafood": [
+            {"content": "I really love seafood.",
+             "timestamp": " Mon Dec 23 2013 21:30 GMT-0800 (PST)",
+             "retweets": ["Raj","Pris","Roy"], "favorites": ["Sam"]
+            }
+          ]},
+          {"another awesome tweet": [
+            ...
+          ]}
+       ]},
+       {"Roy": [ ... ]}
+      ]
+
+  Circle Packs
+    - see d3ia-c6-*-circlepack.html
+    - use when you want to illustrate how leaf nodes fit into categories
+
+  Trees
+    dendrograms
